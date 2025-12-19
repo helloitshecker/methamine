@@ -23,6 +23,8 @@ private:
     void do_connect(const tcp::resolver::results_type& endpoints);
     void do_read();
     void do_write();
+    void handle_error(std::error_code ec);
+    void retry_connection(const tcp::resolver::results_type& endpoints);
 
     asio::io_context& io_context_;
     tcp::socket socket_;
@@ -30,5 +32,7 @@ private:
     asio::streambuf read_buffer_;
     std::deque<std::string> write_msgs_;
     std::string username_;
+    asio::steady_timer reconnection_timer_;
+
 
 };

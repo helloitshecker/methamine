@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.14)
 
 project(terminal_chat
     VERSION 1.0
@@ -9,21 +9,30 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+# ---- Fetch FTXUI ----
+include(FetchContent)
+
+FetchContent_Declare(
+  ftxui
+  GIT_REPOSITORY https://github.com/ArthurSonzogni/FTXUI
+  GIT_TAG v5.0.0
+)
+
+FetchContent_MakeAvailable(ftxui)
+
 # ---- Find Asio ----
 if (WIN32)
-    # On Windows, try to find Asio through vcpkg or other package managers
     find_package(asio CONFIG QUIET)
     if (asio_FOUND)
         add_library(asio INTERFACE ALIAS asio::asio)
     else()
-        # Fallback to header-only Asio
         find_path(ASIO_INCLUDE_DIR
             NAMES asio.hpp
             PATHS
                 ${CMAKE_SOURCE_DIR}/third_party/asio/include
                 ${CMAKE_PREFIX_PATH}/include
                 C:/msys64/ucrt64/include
-                C:/msys64/mingw64/include
+                C:/msys64/mingw64/include [cite: 2]
         )
         if (NOT ASIO_INCLUDE_DIR)
             message(FATAL_ERROR "Asio not found. Install via vcpkg: vcpkg install asio")
@@ -32,7 +41,6 @@ if (WIN32)
         target_include_directories(asio INTERFACE ${ASIO_INCLUDE_DIR})
     endif()
 else()
-    # Linux/Unix: Find standalone Asio
     find_path(ASIO_INCLUDE_DIR
         NAMES asio.hpp
         PATHS
@@ -44,7 +52,6 @@ else()
         message(FATAL_ERROR "Asio not found. Install with: sudo apt install libasio-dev")
     endif()
 
-    # Create an interface target for Asio
     add_library(asio INTERFACE)
     target_include_directories(asio INTERFACE ${ASIO_INCLUDE_DIR})
 endif()
@@ -64,28 +71,27 @@ target_link_libraries(server
         asio
 )
 
-# Add platform-specific libraries
-if (WIN32)
-    target_link_libraries(server PRIVATE ws2_32 mswsock)
-else()
-    target_link_libraries(server PRIVATE pthread)
-endif()
-
-# ---- Client ----
+# ---- Client  ----
 add_executable(client
     client/client.cpp
     client/chatClient.cpp
     client/chatClient.hpp
 )
+
 target_link_libraries(client
     PRIVATE
         asio
+        ftxui::screen
+        ftxui::dom
+        ftxui::component
 )
 
-# Add platform-specific libraries
+# ---- Platform Specific Libraries ----
 if (WIN32)
+    target_link_libraries(server PRIVATE ws2_32 mswsock)
     target_link_libraries(client PRIVATE ws2_32 mswsock)
 else()
+    target_link_libraries(server PRIVATE pthread)
     target_link_libraries(client PRIVATE pthread)
 endif()
 
