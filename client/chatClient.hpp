@@ -1,8 +1,10 @@
 #pragma once
 
 #include <asio.hpp>
+#include <functional>
 #include <string>
 #include <deque>
+#include <vector>
 
 using asio::ip::tcp;
 
@@ -19,6 +21,10 @@ public:
     //Close the connection
     void close();
 
+    std::function<void()> on_message_received;
+
+    const std::vector<std::string>& get_messages() const {return messages_;}
+
 private:
     void do_connect(const tcp::resolver::results_type& endpoints);
     void do_read();
@@ -33,6 +39,7 @@ private:
     std::deque<std::string> write_msgs_;
     std::string username_;
     asio::steady_timer reconnection_timer_;
+    std::vector<std::string> messages_;
 
 
 };

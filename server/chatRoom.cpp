@@ -8,6 +8,7 @@ void ChatRoom::join(std::shared_ptr<ClientSession> session) {
 
 //  Remove a session from the set
 void ChatRoom::leave(std::shared_ptr<ClientSession> session) {
+    sessions_.erase(session);
     std::string goodbye_msg = session->get_name() + " has left the chat.";
 
         // 3. Print to server console

@@ -76,6 +76,8 @@ add_executable(client
     client/client.cpp
     client/chatClient.cpp
     client/chatClient.hpp
+    client/clientUI.cpp
+    client/clientUI.hpp
 )
 
 target_link_libraries(client

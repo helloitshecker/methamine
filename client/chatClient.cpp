@@ -12,10 +12,11 @@ void ChatClient::start() {
 }
 
 void ChatClient::write(const std::string& msg) {
+    if (msg.empty()) return;
     //Use asio::post to ensure thread-safety when accessing the queue
     asio::post(io_context_, [this, msg]() {
         bool write_in_progress = !write_msgs_.empty();
-        write_msgs_.push_back(msg + "\n");
+        write_msgs_.push_back(msg);
         if (!write_in_progress) {
             do_write();
         }
@@ -58,7 +59,10 @@ void ChatClient::do_read() {
                 std::istream is(&read_buffer_);
                 std::string line;
                 std::getline(is, line);
-                std::cout << line << std::endl;
+                messages_.push_back(line);
+                if (on_message_received)
+                    on_message_received();
+                //std::cout << line << std::endl;
                 do_read();
             } else {
                 handle_error(ec);
