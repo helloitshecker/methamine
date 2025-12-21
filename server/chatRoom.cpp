@@ -1,5 +1,5 @@
 #include "chatRoom.hpp"
-#include "clientSession.hpp"
+#include <server/clientSession.hpp>
 
 //  Add a session to the set
 void ChatRoom::join(std::shared_ptr<ClientSession> session) {

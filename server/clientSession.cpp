@@ -1,5 +1,5 @@
 #include "clientSession.hpp"
-#include "chatRoom.hpp"
+#include <server/chatRoom.hpp>
 #include <cstddef>
 #include <iostream>
 #include <string>

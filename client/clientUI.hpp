@@ -2,7 +2,7 @@
 #include <ftxui/component/component.hpp>
 #include <ftxui/component/screen_interactive.hpp>
 #include <string>
-#include "chatClient.hpp"
+#include <client/chatClient.hpp>
 
 class ChatUI{
   public:

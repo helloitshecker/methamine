@@ -1,5 +1,5 @@
-#include "chatClient.hpp"
-#include "clientUI.hpp"
+#include <client/chatClient.hpp>
+#include <client/clientUI.hpp>
 #include <asio.hpp>
 #include <thread>
 

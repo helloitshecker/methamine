@@ -4,7 +4,7 @@
 #include <memory>
 #include <deque>
 #include <string>
-#include "chatRoom.hpp"
+#include <server/chatRoom.hpp>
 
 using asio::ip::tcp;
 
