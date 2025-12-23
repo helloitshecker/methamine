@@ -1,6 +1,10 @@
 #include "chatClient.hpp"
+#include <asio/error.hpp>
 #include <iostream>
+#include <locale>
 #include <string>
+#include <common/protocols.hpp>
+#include <sstream>
 
 ChatClient::ChatClient(asio::io_context& io_context, const tcp::resolver::results_type& endpoints,const std::string& name)
     : io_context_(io_context), socket_(io_context),reconnection_timer_(io_context), endpoints_(endpoints),username_(name) {
@@ -13,39 +17,37 @@ void ChatClient::start() {
 
 void ChatClient::write(const std::string& msg) {
     if (msg.empty()) return;
-    //Use asio::post to ensure thread-safety when accessing the queue
-    asio::post(io_context_, [this, msg]() {
-        bool write_in_progress = !write_msgs_.empty();
-        write_msgs_.push_back(msg);
-        if (!write_in_progress) {
-            do_write();
-        }
-    });
+
+        //Prepend the Chat Header(0x01)
+        std::string packet;
+        packet.push_back(static_cast<char>(protocols::MsgType::Chat));
+        packet.append(msg + "\n");
+        asio::post(io_context_, [this, packet]() {
+            bool write_in_progress = !write_msgs_.empty();
+            write_msgs_.push_back(packet);
+            if (!write_in_progress) {
+                do_write();
+            }
+        });
 }
 
 void ChatClient::do_connect(const tcp::resolver::results_type& endpoints) {
-    //Attempt to connect to the server
     asio::async_connect(socket_, endpoints,
         [this, endpoints](std::error_code ec, tcp::endpoint) {
             if (!ec) {
-                //Connection successful! Now send the username.
-                std::string initial_msg = username_ + "\n";
-                asio::async_write(socket_, asio::buffer(initial_msg),
+                std::string login_packet;
+                login_packet.push_back(static_cast<char>(protocols::MsgType::Login));
+                login_packet.append(username_ + "\n");
+                asio::async_write(socket_, asio::buffer(login_packet),
                     [this, endpoints](std::error_code ec, std::size_t /*length*/) {
                         if (!ec) {
-                            //Handshake complete, start reading messages
-                            do_read();
-                        }
-                        else {
-                            //Failed to send username (connection dropped?)
+                            do_read(); // Handshake done, start listening
+                        } else {
                             std::cout << "[System] Initial write failed. Retrying..." << std::endl;
                             retry_connection(endpoints);
                         }
                     });
-            }
-            else {
-                //Server not found or refused connection
-                std::cout << "[System] Server not found. Retrying in 5 seconds..." << std::endl;
+            } else {
                 retry_connection(endpoints);
             }
         });
@@ -54,15 +56,31 @@ void ChatClient::do_connect(const tcp::resolver::results_type& endpoints) {
 void ChatClient::do_read() {
     asio::async_read_until(socket_, read_buffer_, '\n',
         [this](std::error_code ec, std::size_t length) {
-
             if (!ec) {
                 std::istream is(&read_buffer_);
-                std::string line;
-                std::getline(is, line);
-                messages_.push_back(line);
-                if (on_message_received)
-                    on_message_received();
-                //std::cout << line << std::endl;
+                std::string packet;
+                std::getline(is, packet);
+
+                if (!packet.empty() && packet.back() == '\r') packet.pop_back();
+
+                if (!packet.empty()) {
+                    protocols::MsgType type = static_cast<protocols::MsgType>(packet[0]);
+                    std::string payload = packet.substr(1);
+
+                    if (type == protocols::MsgType::UserList) {
+                        online_users_.clear();
+                        std::stringstream ss(payload);
+                        std::string name;
+                        while(std::getline(ss, name, ',')) {
+                            if(!name.empty()) online_users_.push_back(name);
+                        }
+                    }
+                    else if (type == protocols::MsgType::Chat) {
+                        messages_.push_back(payload);
+                    }
+
+                    if (on_message_received) on_message_received();
+                }
                 do_read();
             } else {
                 handle_error(ec);
@@ -90,17 +108,18 @@ void ChatClient::close() {
 }
 
 void ChatClient::handle_error(std::error_code ec) {
-    if (ec == asio::error::eof) {
-        std::cout << "\n[System] Connection closed by the server." << std::endl;
-    } else {
-        std::cout << "\n[System] Lost connection to server: " << ec.message() << " ❌" << std::endl;
-    }
+    std::string alert = (ec == asio::error::eof)
+    ? "[SYSTEM] Connection closed by server"
+    : "[SYSTEM] Connection error: " + ec.message();
 
-    // Shut down the socket and stop the client
+    messages_.push_back(alert);
+    if (on_message_received) on_message_received();
+
     socket_.close();
 }
 
 void ChatClient::retry_connection(const tcp::resolver::results_type& endpoints) {
+    messages_.push_back("[SYSTEM] Attempting to reconnect in 5s...");
     //Reset the socket for the next attempt
     std::error_code ignore_ec;
     socket_.close(ignore_ec);

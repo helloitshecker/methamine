@@ -4,6 +4,7 @@
 #include <memory>
 #include <string>
 #include <iostream>
+#include <common/protocols.hpp>
 
 // Forward declaration to avoid circular includes
 class ClientSession;
@@ -18,6 +19,8 @@ public:
 
     //  Send a message to everyone in the set
     void deliver(const std::string& msg);
+
+    void broadcast_user_list();
 
 private:
     // Our collection of active sessions

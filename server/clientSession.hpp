@@ -6,7 +6,10 @@
 #include <string>
 #include <server/chatRoom.hpp>
 
+#include <common/protocols.hpp>
+
 using asio::ip::tcp;
+class chatRoom;
 
 class ClientSession : public std::enable_shared_from_this<ClientSession> {
   public:

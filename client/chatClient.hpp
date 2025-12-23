@@ -24,6 +24,7 @@ public:
     std::function<void()> on_message_received;
 
     const std::vector<std::string>& get_messages() const {return messages_;}
+    const std::vector<std::string>& get_online_users() const { return online_users_; }
 
 private:
     void do_connect(const tcp::resolver::results_type& endpoints);
@@ -40,6 +41,7 @@ private:
     std::string username_;
     asio::steady_timer reconnection_timer_;
     std::vector<std::string> messages_;
+    std::vector<std::string> online_users_;
 
 
 };

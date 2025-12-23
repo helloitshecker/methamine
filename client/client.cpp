@@ -11,6 +11,11 @@ int main(int argc, char* argv[]) {
     auto endpoints = resolver.resolve("127.0.0.1", "1234"); // localhost
     std::string username = ChatUI::getUsername();
 
+    if(username.empty()){
+        std::cout<<"login aborted. exiting"<<std::endl;
+        return 0;
+    }
+
     ChatClient client(io_context, endpoints,username);
 
     client.start();
