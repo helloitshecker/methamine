@@ -2,6 +2,7 @@
 #include <client/clientUI.hpp>
 #include <asio.hpp>
 #include <thread>
+#include <iostream>
 
 int main(int argc, char* argv[]) {
     //Setup Asio basics
