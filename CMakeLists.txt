@@ -12,8 +12,14 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 include_directories(${CMAKE_SOURCE_DIR})
 
-find_package(asio CONFIG REQUIRED)
-find_package(ftxui CONFIG REQUIRED)
+find_package(ftxui)
+
+if (WIN32)
+	find_package(asio)
+	set(ASIO_TARGET asio)
+else()
+	set(ASIO_TARGET "")
+endif()
 
 add_executable(server
     server/server.cpp
@@ -24,7 +30,7 @@ add_executable(server
     server/chatRoom.hpp
     server/chatRoom.cpp
 )
-target_link_libraries(server PRIVATE asio)
+target_link_libraries(server PRIVATE ${ASIO_TARGET})
 
 add_executable(client
     client/client.cpp
@@ -36,7 +42,7 @@ add_executable(client
 
 target_link_libraries(client
     PRIVATE
-        asio
+		${ASIO_TARGET}
         ftxui::screen
         ftxui::dom
         ftxui::component
