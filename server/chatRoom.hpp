@@ -3,7 +3,7 @@
 #include <set>
 #include <memory>
 #include <string>
-#include <iostream>
+#include <print>
 #include <common/protocols.hpp>
 
 // Forward declaration to avoid circular includes

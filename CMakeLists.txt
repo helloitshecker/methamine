@@ -1,11 +1,10 @@
 cmake_minimum_required(VERSION 3.14)
 
-project(terminal_chat
-    VERSION 1.0
-    LANGUAGES CXX
-)
+set(PROJECT_NAME Methamine)
 
-set(CMAKE_CXX_STANDARD 17)
+project(${PROJECT_NAME})
+
+set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
@@ -15,10 +14,10 @@ include_directories(${CMAKE_SOURCE_DIR})
 find_package(ftxui)
 
 if (WIN32)
-	find_package(asio)
-	set(ASIO_TARGET asio)
+    find_package(asio)
+    set(ASIO_TARGET asio)
 else()
-	set(ASIO_TARGET "")
+    set(ASIO_TARGET "")
 endif()
 
 add_executable(server
@@ -42,7 +41,7 @@ add_executable(client
 
 target_link_libraries(client
     PRIVATE
-		${ASIO_TARGET}
+  ${ASIO_TARGET}
         ftxui::screen
         ftxui::dom
         ftxui::component
@@ -52,17 +51,9 @@ target_link_libraries(client
 if (WIN32)
     target_link_libraries(server PRIVATE ws2_32 mswsock)
     target_link_libraries(client PRIVATE ws2_32 mswsock)
+    add_compile_options(/utf-8 /MP)
+    add_compile_definitions(_WIN32_WINNT=0x0A00)
 else()
     target_link_libraries(server PRIVATE pthread)
     target_link_libraries(client PRIVATE pthread)
-endif()
-
-# Debugging
-# TODO: Make one for Release version
-if (MSVC)
-    target_compile_options(server PRIVATE /W4)
-    target_compile_options(client PRIVATE /W4)
-else()
-    target_compile_options(server PRIVATE -Wall -Wextra -Wpedantic)
-    target_compile_options(client PRIVATE -Wall -Wextra -Wpedantic)
 endif()

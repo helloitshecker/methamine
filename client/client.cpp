@@ -9,7 +9,7 @@ int main(int argc, char* argv[]) {
     asio::io_context io_context;
 
     asio::ip::tcp::resolver resolver(io_context);
-    auto endpoints = resolver.resolve("127.0.0.1", "1234"); // localhost
+    auto endpoints = resolver.resolve("127.0.0.1", "6969"); // localhost
     std::string username = ChatUI::getUsername();
 
     if(username.empty()){

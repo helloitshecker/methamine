@@ -1,68 +1,28 @@
-# Terminal Chat
+<pre>
+███╗   ███╗███████╗████████╗██╗  ██╗ █████╗ ███╗   ███╗██╗███╗   ██╗███████╗
+████╗ ████║██╔════╝╚══██╔══╝██║  ██║██╔══██╗████╗ ████║██║████╗  ██║██╔════╝
+██╔████╔██║█████╗     ██║   ███████║███████║██╔████╔██║██║██╔██╗ ██║█████╗  
+██║╚██╔╝██║██╔══╝     ██║   ██╔══██║██╔══██║██║╚██╔╝██║██║██║╚██╗██║██╔══╝  
+██║ ╚═╝ ██║███████╗   ██║   ██║  ██║██║  ██║██║ ╚═╝ ██║██║██║ ╚████║███████╗
+╚═╝     ╚═╝╚══════╝   ╚═╝   ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝     ╚═╝╚═╝╚═╝  ╚═══╝╚══════╝
+</pre>
 
-A simple terminal-based chat application using C++ and Asio.
+A Minimal Chatting Server.
 
 ## Prerequisites
 
 ### Linux
-Install Asio via your package manager:
+
+Install required packages using vcpkg:
+
 ```bash
-# Ubuntu/Debian
-sudo apt-get install libasio-dev
-
-# Fedora/RHEL/CentOS
-sudo dnf install asio-devel
-
-# Arch Linux
-sudo pacman -S asio
-```
-
-### Windows
-Install Asio via vcpkg:
-```bash
-# Install vcpkg if you don't have it
-git clone https://github.com/Microsoft/vcpkg.git
-cd vcpkg
-.\bootstrap-vcpkg.bat
-
-# Install Asio
-.\vcpkg install asio
-```
-
-Or download Asio headers manually and place them in a `third_party/asio/include` directory.
-
-## Building
-
-### Linux/macOS
-```bash
-mkdir build && cd build
-cmake ..
-make
-```
-
-### Windows
-```bash
-mkdir build && cd build
-cmake ..
-cmake --build .
+vcpkg install asio ftxui
 ```
 
 ## Usage
 
-Run the server:
 ```bash
-# Linux/macOS
-./server/server
-
-# Windows
-.\server\Debug\server.exe
+./server
 ```
 
-Run the client:
-```bash
-# Linux/macOS
-./client/client
-
-# Windows
-.\client\Debug\client.exe
-```
+Don't forget to leave a ⭐ on github!

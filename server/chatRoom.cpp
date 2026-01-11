@@ -11,11 +11,11 @@ void ChatRoom::leave(std::shared_ptr<ClientSession> session) {
     sessions_.erase(session);
     std::string goodbye_msg = session->get_name() + " has left the chat.";
 
-        // 3. Print to server console
-        std::cout << "[Room] " << goodbye_msg << " Total participants: " << sessions_.size() << std::endl;
+    // 3. Print to server console
+    std::print("[Room] {} Total participants: {}\n", goodbye_msg, sessions_.size());
 
-        // 4. Tell everyone else
-        deliver(goodbye_msg);
+    // 4. Tell everyone else
+     deliver(goodbye_msg);
 }
 
 //  Broadcast to everyone
